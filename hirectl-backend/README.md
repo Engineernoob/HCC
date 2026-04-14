@@ -433,6 +433,67 @@ AI_PROVIDER=openai
 OPENAI_API_KEY=...
 ```
 
+## Remote production control
+
+Render free instances do not provide local-terminal SSH into the service. Use the protected admin API instead.
+
+Set this env var on both Render services:
+
+```env
+ADMIN_API_KEY=use-a-long-random-secret
+```
+
+Then redeploy/restart `hirectl-backend-api`.
+
+Trigger a full ingest from your local terminal:
+
+```bash
+curl -X POST "https://hirectl-backend.onrender.com/api/admin/ingest" \
+  -H "Authorization: Bearer $ADMIN_API_KEY"
+```
+
+Trigger one source:
+
+```bash
+curl -X POST "https://hirectl-backend.onrender.com/api/admin/ingest?source=funding" \
+  -H "Authorization: Bearer $ADMIN_API_KEY"
+```
+
+Valid sources:
+- `yc_jobs`
+- `greenhouse`
+- `ashby`
+- `github`
+- `funding`
+- `career_page`
+- `portfolio_boards`
+- `social`
+
+Run automation:
+
+```bash
+curl -X POST "https://hirectl-backend.onrender.com/api/admin/automate" \
+  -H "Authorization: Bearer $ADMIN_API_KEY"
+```
+
+Refresh model-blended scores:
+
+```bash
+curl -X POST "https://hirectl-backend.onrender.com/api/admin/model-refresh" \
+  -H "Authorization: Bearer $ADMIN_API_KEY"
+```
+
+Recommended production refresh loop:
+
+```bash
+curl -X POST "https://hirectl-backend.onrender.com/api/admin/ingest" \
+  -H "Authorization: Bearer $ADMIN_API_KEY"
+curl -X POST "https://hirectl-backend.onrender.com/api/admin/automate" \
+  -H "Authorization: Bearer $ADMIN_API_KEY"
+curl -X POST "https://hirectl-backend.onrender.com/api/admin/model-refresh" \
+  -H "Authorization: Bearer $ADMIN_API_KEY"
+```
+
 ## Environment variables
 
 See [.env.example](/Users/taahirahdenmark/HCC/hirectl-backend/.env.example) for the full set.

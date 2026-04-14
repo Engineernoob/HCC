@@ -1,4 +1,5 @@
 from functools import lru_cache
+import secrets
 from typing import Literal
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -73,6 +74,7 @@ class Settings(BaseSettings):
     scheduler_timezone: str = "America/Chicago"
     frontend_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001"
     frontend_origin_regex: str = ""
+    admin_api_key: str = ""
     automation_watchlist_min_score: float = 72.0
     automation_watchlist_min_signals_30d: int = 1
     automation_watchlist_min_roles: int = 1
@@ -171,6 +173,10 @@ class Settings(BaseSettings):
     def cors_origin_regex(self) -> str | None:
         candidate = self.frontend_origin_regex.strip()
         return candidate or None
+
+    def admin_token_is_valid(self, token: str) -> bool:
+        expected = self.admin_api_key.strip()
+        return bool(expected) and secrets.compare_digest(token, expected)
 
 
 @lru_cache

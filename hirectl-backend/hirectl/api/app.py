@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Request
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Request, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -24,6 +24,12 @@ from hirectl.signals.payloads import signal_payload_from_model, TYPE_LABELS, sco
 from hirectl.signals.stream import signal_stream_broker
 
 logger = logging.getLogger(__name__)
+
+
+async def require_admin(authorization: str = Header(default="")) -> None:
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer" or not settings.admin_token_is_valid(token):
+        raise HTTPException(status_code=401, detail="Invalid admin token")
 
 
 @asynccontextmanager
@@ -702,14 +708,10 @@ async def list_roles(
         return []
 
 
-# ── Ingest trigger ─────────────────────────────────────────────────
+# ── Admin triggers ─────────────────────────────────────────────────
 
 
-@app.post("/api/ingest/run")
-async def trigger_ingest(
-    source: Optional[str] = Query(None),
-    background_tasks: BackgroundTasks = None,
-):
+async def run_ingest_now(source: Optional[str] = None) -> dict:
     from hirectl.ingestion.yc_jobs import YCJobsAdapter
     from hirectl.ingestion.greenhouse import GreenhouseAdapter
     from hirectl.ingestion.ashby import AshbyAdapter
@@ -747,11 +749,38 @@ async def trigger_ingest(
     return {"triggered_at": datetime.utcnow(), "results": results}
 
 
-@app.post("/api/automation/run")
-async def trigger_automation():
+@app.post("/api/admin/ingest", dependencies=[Depends(require_admin)])
+async def trigger_admin_ingest(source: Optional[str] = Query(None)):
+    return await run_ingest_now(source)
+
+
+@app.post("/api/ingest/run", dependencies=[Depends(require_admin)])
+async def trigger_ingest(source: Optional[str] = Query(None)):
+    return await run_ingest_now(source)
+
+
+async def run_automation_now() -> dict:
     from hirectl.automation.service import AutomationService
 
     summary = await AutomationService().run()
+    return {"triggered_at": datetime.utcnow(), "summary": summary}
+
+
+@app.post("/api/admin/automate", dependencies=[Depends(require_admin)])
+async def trigger_admin_automation():
+    return await run_automation_now()
+
+
+@app.post("/api/automation/run", dependencies=[Depends(require_admin)])
+async def trigger_automation():
+    return await run_automation_now()
+
+
+@app.post("/api/admin/model-refresh", dependencies=[Depends(require_admin)])
+async def trigger_admin_model_refresh():
+    from hirectl.ingestion.service import IngestionService
+
+    summary = await IngestionService().refresh_all_company_scores()
     return {"triggered_at": datetime.utcnow(), "summary": summary}
 
 
