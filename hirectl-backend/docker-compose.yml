@@ -1,0 +1,146 @@
+services:
+  # ── Ollama ──────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    init: true
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    mem_limit: 4g
+    cpus: 2.0
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+  # ── PostgreSQL ──────────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    command:
+      [
+        "postgres",
+        "-c", "shared_buffers=128MB",
+        "-c", "work_mem=4MB",
+        "-c", "maintenance_work_mem=64MB",
+        "-c", "effective_cache_size=256MB",
+        "-c", "max_connections=40",
+        "-c", "wal_compression=on"
+      ]
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: hirectl
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    mem_limit: 512m
+    cpus: 1.0
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ───────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    mem_limit: 128m
+    cpus: 0.50
+    logging:
+      options:
+        max-size: "5m"
+        max-file: "2"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── HIRE INTEL API ──────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:password@postgres:5432/hirectl
+      DATABASE_SYNC_URL: postgresql://postgres:password@postgres:5432/hirectl
+      REDIS_URL: redis://redis:6379/0
+      OLLAMA_BASE_URL: http://ollama:11434
+      AI_MODEL: llama3.2:1b
+      OLLAMA_MODEL: llama3.2:1b
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: hirectl api --host 0.0.0.0 --port 8000
+    volumes:
+      - .:/app
+    mem_limit: 512m
+    cpus: 1.0
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+  # ── Scheduler ───────────────────────────────────────────────────
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:password@postgres:5432/hirectl
+      DATABASE_SYNC_URL: postgresql://postgres:password@postgres:5432/hirectl
+      REDIS_URL: redis://redis:6379/0
+      OLLAMA_BASE_URL: http://ollama:11434
+      AI_MODEL: llama3.2:1b
+      OLLAMA_MODEL: llama3.2:1b
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: hirectl scheduler
+    volumes:
+      - .:/app
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import os, sys, time; path='/tmp/hirectl_scheduler_heartbeat'; sys.exit(0 if os.path.exists(path) and time.time() - os.path.getmtime(path) < 45 else 1)",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    mem_limit: 384m
+    cpus: 0.75
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  ollama_data:

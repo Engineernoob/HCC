@@ -1,0 +1,10 @@
+.DS_Store
+.env
+.env.*
+.git
+.hirebackend
+__pycache__/
+*.py[cod]
+*.log
+artifacts/
+docker-compose.yml

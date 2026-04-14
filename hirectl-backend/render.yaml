@@ -1,0 +1,150 @@
+services:
+  - type: web
+    name: hirectl-backend-api
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: /bin/sh -c "hirectl db init && hirectl api --host 0.0.0.0 --port ${PORT:-8000}"
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: APSCHEDULER_LOG_LEVEL
+        value: WARNING
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hirectl-postgres
+          property: connectionString
+      - key: DATABASE_SYNC_URL
+        fromDatabase:
+          name: hirectl-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: hirectl-redis
+          property: connectionString
+      - key: FRONTEND_ORIGINS
+        value: https://hirectl.vercel.app
+      - key: FRONTEND_ORIGIN_REGEX
+        value: ^https://.*\.vercel\.app$
+      - key: AI_PROVIDER
+        value: ollama
+      - key: AI_MODEL
+        value: llama3.2:1b
+      - key: OLLAMA_MODEL
+        value: llama3.2:1b
+      - key: OLLAMA_BASE_URL
+        value: http://127.0.0.1:11434
+      - key: OLLAMA_TIMEOUT_SECONDS
+        value: 2
+      - key: AI_FAILURE_COOLDOWN_SECONDS
+        value: 300
+      - key: DB_POOL_SIZE
+        value: 3
+      - key: DB_MAX_OVERFLOW
+        value: 2
+      - key: HTTP_MAX_CONNECTIONS
+        value: 12
+      - key: HTTP_MAX_KEEPALIVE_CONNECTIONS
+        value: 6
+      - key: JOB_BOARD_BATCH_SIZE
+        value: 3
+      - key: CAREER_PAGE_BATCH_SIZE
+        value: 2
+      - key: SEC_USER_AGENT
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: worker
+    name: hirectl-backend-scheduler
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: /bin/sh -c "hirectl db init && hirectl scheduler"
+    autoDeployTrigger: commit
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: APSCHEDULER_LOG_LEVEL
+        value: WARNING
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hirectl-postgres
+          property: connectionString
+      - key: DATABASE_SYNC_URL
+        fromDatabase:
+          name: hirectl-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: hirectl-redis
+          property: connectionString
+      - key: FRONTEND_ORIGINS
+        value: https://hirectl.vercel.app
+      - key: FRONTEND_ORIGIN_REGEX
+        value: ^https://.*\.vercel\.app$
+      - key: AI_PROVIDER
+        value: ollama
+      - key: AI_MODEL
+        value: llama3.2:1b
+      - key: OLLAMA_MODEL
+        value: llama3.2:1b
+      - key: OLLAMA_BASE_URL
+        value: http://127.0.0.1:11434
+      - key: OLLAMA_TIMEOUT_SECONDS
+        value: 2
+      - key: AI_FAILURE_COOLDOWN_SECONDS
+        value: 300
+      - key: DB_POOL_SIZE
+        value: 3
+      - key: DB_MAX_OVERFLOW
+        value: 2
+      - key: HTTP_MAX_CONNECTIONS
+        value: 12
+      - key: HTTP_MAX_KEEPALIVE_CONNECTIONS
+        value: 6
+      - key: JOB_BOARD_BATCH_SIZE
+        value: 3
+      - key: CAREER_PAGE_BATCH_SIZE
+        value: 2
+      - key: SCHEDULER_RUN_ON_STARTUP
+        value: "true"
+      - key: SEC_USER_AGENT
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: keyvalue
+    name: hirectl-redis
+    plan: free
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+databases:
+  - name: hirectl-postgres
+    databaseName: hirectl
+    user: hirectl
+    plan: basic-256mb
+    region: oregon
+    ipAllowList: []

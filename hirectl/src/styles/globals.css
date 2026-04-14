@@ -1,0 +1,351 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design tokens ─────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --ink-0: #080806;
+  --ink-1: #0d0d0a;
+  --ink-2: #141410;
+  --ink-3: #1c1c17;
+  --ink-4: #242420;
+  --ink-5: #2e2e28;
+  --ink-6: #3a3a32;
+
+  /* Text */
+  --text-bright: #eceae0;
+  --text-primary: #c8c5b8;
+  --text-secondary: #8a8a78;
+  --text-dim: #5a5a50;
+  --text-faint: #3a3a32;
+
+  /* Accents */
+  --gold: #c8a96e;
+  --gold-dim: #7a6040;
+  --gold-bg: #1a1408;
+  --green: #4a8a5a;
+  --green-dim: #2a4a32;
+  --green-bg: #0a140c;
+  --blue: #5070b0;
+  --blue-dim: #2a3a6a;
+  --blue-bg: #08101c;
+  --red: #b84040;
+  --red-dim: #4a1818;
+
+  /* Rules */
+  --rule: #1e1e18;
+  --rule-2: #2a2a22;
+  --rule-3: #363630;
+
+  /* Typography */
+  --font-display: "Bebas Neue", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --font-serif: "Crimson Pro", serif;
+
+  /* Timing */
+  --fast: 80ms;
+  --normal: 160ms;
+}
+
+/* ─── Reset ─────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--ink-0);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+#__next {
+  min-height: 100vh;
+}
+
+/* ─── Scrollbars ─────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-5);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-6);
+}
+
+/* ─── Typography utilities ───────────────────────────── */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+.font-serif {
+  font-family: var(--font-serif);
+}
+.font-serif-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+
+/* ─── Text colors ────────────────────────────────────── */
+.text-bright { color: var(--text-bright); }
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-dim { color: var(--text-dim); }
+.text-gold { color: var(--gold); }
+.text-green { color: var(--green); }
+.text-blue { color: var(--blue); }
+.text-red { color: var(--red); }
+
+/* ─── Kicker / label ─────────────────────────────────── */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ─── Chip / tag ─────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border: 1px solid var(--rule-3);
+  color: var(--text-dim);
+  cursor: default;
+  transition: border-color var(--fast), color var(--fast);
+  white-space: nowrap;
+}
+.chip-gold {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+  background: var(--gold-bg);
+}
+.chip-green {
+  border-color: var(--green-dim);
+  color: var(--green);
+  background: var(--green-bg);
+}
+.chip-blue {
+  border-color: var(--blue-dim);
+  color: var(--blue);
+  background: var(--blue-bg);
+}
+
+/* ─── Urgency badges ─────────────────────────────────── */
+.urgency {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid;
+}
+.urgency-critical {
+  border-color: #5a2020;
+  color: #d06060;
+  background: #140808;
+}
+.urgency-high {
+  border-color: #5a3a20;
+  color: #c08050;
+  background: #140c08;
+}
+.urgency-medium {
+  border-color: #4a4020;
+  color: #b0a060;
+  background: #120f08;
+}
+.urgency-low {
+  border-color: #1a3a28;
+  color: #60a078;
+  background: #080f0c;
+}
+
+/* ─── Score bar ──────────────────────────────────────── */
+.score-bar {
+  height: 2px;
+  background: var(--ink-5);
+  overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width 600ms ease;
+}
+.score-bar-fill-mid {
+  background: var(--text-secondary);
+}
+.score-bar-fill-lo {
+  background: var(--text-dim);
+}
+
+/* ─── Divider ─────────────────────────────────────────── */
+.vdivider {
+  width: 1px;
+  height: 14px;
+  background: var(--rule-2);
+  flex-shrink: 0;
+}
+
+/* ─── Live pulse dot ─────────────────────────────────── */
+.live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+.ai-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+  animation: pulse 2.4s ease-in-out infinite 0.4s;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+/* ─── Scan line animation (optional overlay) ─────────── */
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* ─── Button base ────────────────────────────────────── */
+.btn {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border: 1px solid var(--rule-3);
+  color: var(--text-dim);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color var(--fast), color var(--fast), background var(--fast);
+  white-space: nowrap;
+}
+.btn:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-bright);
+}
+.btn-gold {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.ticker-track {
+  width: max-content;
+  animation: ticker-scroll 36s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.sheet-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sheet-scroll::-webkit-scrollbar-thumb {
+  background: var(--rule-3);
+}
+.btn-gold:hover {
+  border-color: var(--gold);
+  color: var(--text-bright);
+  background: var(--gold-bg);
+}
+.btn-display {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  padding: 5px 14px;
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+.btn-display:hover {
+  border-color: var(--gold);
+  background: var(--gold-bg);
+  color: var(--text-bright);
+}
+
+/* ─── Input / select ─────────────────────────────────── */
+.terminal-input {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: transparent;
+  border: 1px solid var(--rule-2);
+  color: var(--text-primary);
+  padding: 5px 10px;
+  outline: none;
+  transition: border-color var(--fast);
+}
+.terminal-input:focus {
+  border-color: var(--ink-6);
+}
+.terminal-input::placeholder {
+  color: var(--text-faint);
+}
+.terminal-select {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--ink-1);
+  border: 1px solid var(--rule-2);
+  color: var(--text-primary);
+  padding: 5px 28px 5px 10px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* ─── Panel rule ─────────────────────────────────────── */
+.panel-rule {
+  border-bottom: 1px solid var(--rule-2);
+}
+.panel-rule-strong {
+  border-bottom: 2px solid var(--rule-3);
+}

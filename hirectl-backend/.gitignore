@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.hirebackend/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local databases and runtime state
+*.db
+*.sqlite
+*.sqlite3
+*.pid
+*.log
+logs/
+
+# Project artifacts
+artifacts/
+models/
+*.pkl
+*.joblib
+*.csv
+
+# Docker and OS noise
+.DS_Store
+docker-compose.override.yml
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
