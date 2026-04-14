@@ -7,7 +7,7 @@
 import type { CandidateProfile } from "./personalization";
 import type { ExecutionStatus } from "@/types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://hirectl-backend.onrender.com";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 function isNgrokUrl(url: string): boolean {
   try {
@@ -161,10 +161,7 @@ export interface ExecutionUpdate {
 
 // ── HTTP helpers ───────────────────────────────────────────────────
 
-async function apiFetch<T>(
-  path: string,
-  options?: RequestInit
-): Promise<T> {
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE}${path}`;
   const res = await fetch(url, {
     headers: buildApiHeaders(options?.headers),
@@ -179,7 +176,9 @@ async function apiFetch<T>(
 function buildQuery(params: Record<string, unknown>): string {
   const qs = Object.entries(params)
     .filter(([, v]) => v !== undefined && v !== null && v !== "")
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+    .map(
+      ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`,
+    )
     .join("&");
   return qs ? `?${qs}` : "";
 }
@@ -207,20 +206,23 @@ export const api = {
     return apiFetch<CompanyOut>(`/api/companies/${id}`);
   },
 
-  async generateBrief(id: string, regenerate = false): Promise<{ brief: string; cached: boolean }> {
+  async generateBrief(
+    id: string,
+    regenerate = false,
+  ): Promise<{ brief: string; cached: boolean }> {
     return apiFetch<{ brief: string; cached: boolean }>(
       `/api/companies/${id}/brief`,
       {
         method: "POST",
         body: JSON.stringify({ regenerate }),
-      }
+      },
     );
   },
 
   async generateOutreach(
     id: string,
     contact_role = "engineering lead",
-    specific_angle = ""
+    specific_angle = "",
   ): Promise<{ draft: string }> {
     return apiFetch<{ draft: string }>(`/api/companies/${id}/outreach`, {
       method: "POST",
@@ -234,7 +236,7 @@ export const api = {
       {
         method: "PUT",
         body: JSON.stringify({ on_watchlist }),
-      }
+      },
     );
   },
 
@@ -249,12 +251,18 @@ export const api = {
     });
   },
 
-  async getExecution(company_id?: string, limit = 100): Promise<ExecutionOut[]> {
+  async getExecution(
+    company_id?: string,
+    limit = 100,
+  ): Promise<ExecutionOut[]> {
     const q = buildQuery({ company_id, limit });
     return apiFetch<ExecutionOut[]>(`/api/execution${q}`);
   },
 
-  async updateExecution(id: string, payload: ExecutionUpdate): Promise<ExecutionOut> {
+  async updateExecution(
+    id: string,
+    payload: ExecutionUpdate,
+  ): Promise<ExecutionOut> {
     return apiFetch<ExecutionOut>(`/api/execution/${id}`, {
       method: "PUT",
       body: JSON.stringify(payload),
@@ -268,13 +276,15 @@ export const api = {
   },
 
   // Roles
-  async getRoles(params: {
-    company_id?: string;
-    role_type?: string;
-    remote_us?: boolean;
-    min_fit?: number;
-    limit?: number;
-  } = {}): Promise<RoleOut[]> {
+  async getRoles(
+    params: {
+      company_id?: string;
+      role_type?: string;
+      remote_us?: boolean;
+      min_fit?: number;
+      limit?: number;
+    } = {},
+  ): Promise<RoleOut[]> {
     const q = buildQuery(params as Record<string, unknown>);
     return apiFetch<RoleOut[]>(`/api/roles${q}`);
   },
@@ -284,7 +294,7 @@ export const api = {
     const q = source ? `?source=${source}` : "";
     return apiFetch<{ triggered_at: string; results: Record<string, unknown> }>(
       `/api/ingest/run${q}`,
-      { method: "POST" }
+      { method: "POST" },
     );
   },
 };
