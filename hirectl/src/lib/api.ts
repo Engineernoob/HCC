@@ -7,7 +7,7 @@
 import type { CandidateProfile } from "./personalization";
 import type { ExecutionStatus } from "@/types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://hirectl-backend.onrender.com";
 
 function isNgrokUrl(url: string): boolean {
   try {
