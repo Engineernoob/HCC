@@ -7,7 +7,8 @@
 import type { CandidateProfile } from "./personalization";
 import type { ExecutionStatus } from "@/types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const LOCAL_API_BASE = "http://localhost:8000";
+const PRODUCTION_API_BASE = "https://hirectl-backend.onrender.com";
 
 function isNgrokUrl(url: string): boolean {
   try {
@@ -17,6 +18,25 @@ function isNgrokUrl(url: string): boolean {
     return false;
   }
 }
+
+function normalizeApiBase(url: string): string {
+  return url.replace(/\/+$/, "");
+}
+
+function resolveApiBase(): string {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+
+  if (process.env.NODE_ENV === "production") {
+    if (!configured || isNgrokUrl(configured)) {
+      return PRODUCTION_API_BASE;
+    }
+    return normalizeApiBase(configured);
+  }
+
+  return normalizeApiBase(configured || LOCAL_API_BASE);
+}
+
+const API_BASE = resolveApiBase();
 
 function buildApiHeaders(extra?: HeadersInit): Headers {
   const headers = new Headers(extra);
