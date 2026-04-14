@@ -4,6 +4,10 @@ from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _looks_like_placeholder(value: str) -> bool:
+    return value.strip().startswith("<") and value.strip().endswith(">")
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -115,6 +119,11 @@ class Settings(BaseSettings):
         """Render exposes postgresql:// URLs; async SQLAlchemy needs asyncpg."""
         if not isinstance(v, str):
             return v
+        if _looks_like_placeholder(v):
+            raise ValueError(
+                "DATABASE_URL is still a placeholder. Use the actual Render internal "
+                "Postgres connection string."
+            )
         if v.startswith("postgres://"):
             v = "postgresql://" + v.removeprefix("postgres://")
         if v.startswith("postgresql://"):
@@ -127,6 +136,11 @@ class Settings(BaseSettings):
         """Keep sync DB URLs compatible with psycopg2-based SQLAlchemy."""
         if not isinstance(v, str):
             return v
+        if _looks_like_placeholder(v):
+            raise ValueError(
+                "DATABASE_SYNC_URL is still a placeholder. Use the actual Render internal "
+                "Postgres connection string."
+            )
         if v.startswith("postgresql+asyncpg://"):
             return "postgresql://" + v.removeprefix("postgresql+asyncpg://")
         if v.startswith("postgres://"):
