@@ -45,15 +45,15 @@ export default function ExecutionPanel({
   onUpdateExecution,
 }: ExecutionPanelProps) {
   return (
-    <section className="border border-console-rule2 bg-ink-1">
-      <div className="border-b border-console-rule2 px-4 py-3">
-        <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-console-dim">
+    <section className="console-panel">
+      <div className="console-panel-header">
+        <div className="console-label">
           Execution
         </div>
         <div className="mt-1 font-serif text-[22px] italic text-console-bright">
           {execution ? execution.statusLabel : `No execution history for ${companyName}`}
         </div>
-        <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-console-secondary">
+        <div className="console-subtle mt-2">
           {execution?.targetRoleTitle || targetRoleTitle}
         </div>
       </div>
@@ -63,13 +63,13 @@ export default function ExecutionPanel({
           {(execution ? [execution.status] : (["tracking"] as ExecutionStatus[])).map((status) => (
             <span
               key={status}
-              className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${STATUS_CLASS[status]}`}
+              className={`console-tag ${STATUS_CLASS[status]}`}
             >
               {execution?.statusLabel || "Tracking"}
             </span>
           ))}
           {execution?.followUpDue ? (
-            <span className="border border-console-red px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-console-red">
+            <span className="console-tag border-console-red text-console-red">
               Due {formatDate(execution.followUpDue)}
             </span>
           ) : null}
@@ -82,7 +82,7 @@ export default function ExecutionPanel({
               type="button"
               disabled={saving}
               onClick={() => onUpdateExecution(action.status)}
-              className={`border px-3 py-2 text-left font-mono text-[10px] uppercase tracking-[0.14em] transition ${
+              className={`console-action justify-start text-left ${
                 saving
                   ? "cursor-wait border-console-rule3 text-console-dim"
                   : STATUS_CLASS[action.status]
@@ -94,17 +94,17 @@ export default function ExecutionPanel({
         </div>
 
         <div className="border border-console-rule2 px-3 py-3">
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-console-dim">
+          <div className="console-label">
             Current note
           </div>
-          <div className="mt-2 font-mono text-[11px] leading-6 text-console-primary">
+          <div className="console-body mt-2">
             {execution?.notes ||
               "No operator note yet. Use the status controls to start building decision history for this company."}
           </div>
         </div>
 
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-console-dim">
+          <div className="console-label">
             Recent activity
           </div>
           <div className="mt-3 space-y-2">

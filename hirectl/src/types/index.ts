@@ -150,6 +150,7 @@ export interface Opportunity {
   companyName: string;
   companyTagline: string;
   primaryRoleTitle: string;
+  primaryRoleUrl?: string;
   roleFocus: RoleType;
   summary: string;
   location: string;

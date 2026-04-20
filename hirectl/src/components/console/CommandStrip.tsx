@@ -16,18 +16,30 @@ const TONE_CLASS: Record<CommandMetric["tone"], string> = {
 
 export default function CommandStrip({ metrics }: CommandStripProps) {
   return (
-    <section className="grid grid-cols-5 border-b border-console-rule2 bg-ink-1">
+    <section className="grid grid-cols-2 border-b border-console-rule2 bg-ink-1 md:grid-cols-5">
       {metrics.map((metric) => (
-        <div key={metric.id} className="border-r border-console-rule2 px-4 py-3 last:border-r-0">
-          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-console-dim">
+        <div
+          key={metric.id}
+          className="relative border-r border-t border-console-rule2 px-4 py-3 first:border-t-0 md:border-t-0 md:last:border-r-0"
+        >
+          <div className="console-label text-[9px]">
             {metric.label}
           </div>
-          <div className={`mt-2 font-mono text-[26px] leading-none ${TONE_CLASS[metric.tone]}`}>
+          <div className={`mt-2 font-mono text-[28px] leading-none ${TONE_CLASS[metric.tone]}`}>
             {metric.value}
           </div>
-          <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-console-secondary">
+          <div className="console-subtle mt-1">
             {metric.delta}
           </div>
+          <div className={`absolute bottom-0 left-0 h-[2px] w-1/2 ${
+            metric.tone === "green"
+              ? "bg-console-green"
+              : metric.tone === "yellow"
+                ? "bg-console-gold"
+                : metric.tone === "red"
+                  ? "bg-console-red"
+                  : "bg-console-blue"
+          }`} />
         </div>
       ))}
     </section>

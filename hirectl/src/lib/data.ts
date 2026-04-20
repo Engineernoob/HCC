@@ -690,6 +690,7 @@ function buildOpportunityFromBackend(
     companyName: company.name,
     companyTagline: company.tagline,
     primaryRoleTitle: topRole?.title ?? fallbackRoleTitle(company, roleFocus),
+    primaryRoleUrl: topRole?.url || undefined,
     roleFocus,
     summary: company.aiBrief ?? fallbackOpportunitySummary(company),
     location: company.location,

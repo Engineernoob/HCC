@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AccentTone,
   ConsoleDashboardData,
@@ -17,6 +17,7 @@ import HiringTicker from "./HiringTicker";
 import SidebarNav from "./SidebarNav";
 import CommandStrip from "./CommandStrip";
 import RankedOpportunities from "./RankedOpportunities";
+import DecisionBriefingBar from "./DecisionBriefingBar";
 import LiveSignalsFeed from "./LiveSignalsFeed";
 import CompanyIntelPanel from "./CompanyIntelPanel";
 import TimelinePanel from "./TimelinePanel";
@@ -71,6 +72,7 @@ export default function AppShell() {
   const [profileSaving, setProfileSaving] = useState(false);
   const [executionSavingCompanyId, setExecutionSavingCompanyId] = useState<string | null>(null);
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   function applyWatchlistState(current: ConsoleDashboardData, companyId: string, watchlisted: boolean): ConsoleDashboardData {
     const opportunities = current.opportunities.map((opportunity) =>
@@ -284,6 +286,66 @@ export default function AppShell() {
   const selectedOpportunity = prioritizedOpportunities.find((opportunity) => opportunity.companyId === selectedCompanyId) ?? prioritizedOpportunities[0] ?? null;
   const selectedDetail = selectedOpportunity && dashboard ? dashboard.companyDetails[selectedOpportunity.companyId] : null;
 
+  useEffect(() => {
+    function shouldIgnoreKeyboardEvent(event: KeyboardEvent): boolean {
+      const target = event.target as HTMLElement | null;
+      if (event.metaKey || event.ctrlKey || event.altKey) return true;
+      if (!target) return false;
+      return ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable;
+    }
+
+    function moveSelection(direction: 1 | -1) {
+      if (prioritizedOpportunities.length === 0) return;
+      const currentIndex = Math.max(
+        0,
+        prioritizedOpportunities.findIndex((opportunity) => opportunity.companyId === selectedCompanyId)
+      );
+      const nextIndex = Math.min(
+        prioritizedOpportunities.length - 1,
+        Math.max(0, currentIndex + direction)
+      );
+      setSelectedCompanyId(prioritizedOpportunities[nextIndex].companyId);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setSheetOpen(false);
+        setProfileOpen(false);
+        return;
+      }
+
+      if (shouldIgnoreKeyboardEvent(event)) {
+        return;
+      }
+
+      if (event.key === "/") {
+        event.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+
+      if (event.key.toLowerCase() === "j") {
+        event.preventDefault();
+        moveSelection(1);
+        return;
+      }
+
+      if (event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        moveSelection(-1);
+        return;
+      }
+
+      if (event.key === "Enter" && selectedOpportunity) {
+        event.preventDefault();
+        setSheetOpen(true);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [prioritizedOpportunities, selectedCompanyId, selectedOpportunity]);
+
   const visibleSignals = useMemo(() => {
     if (!dashboard) {
       return [];
@@ -324,8 +386,9 @@ export default function AppShell() {
   }
 
   return (
-    <div className="min-h-screen bg-ink-0 text-console-primary">
+    <div className="console-grid-bg min-h-screen bg-ink-0 text-console-primary">
       <TopBar
+        searchInputRef={searchInputRef}
         search={search}
         notifications={Math.min(9, dashboard.liveSignals.filter((signal) => signal.scoreVariant === "high").length)}
         activeFilters={filters}
@@ -363,7 +426,16 @@ export default function AppShell() {
             </div>
           ) : null}
 
-          <div className="grid grid-cols-[minmax(0,1.45fr)_minmax(360px,0.9fr)] gap-4 p-4">
+          <DecisionBriefingBar
+            opportunity={selectedOpportunity}
+            detail={selectedDetail}
+            resultCount={prioritizedOpportunities.length}
+            activeFilterCount={filters.length}
+            apiConnected={dashboard.apiConnected}
+            onOpenDetail={() => setSheetOpen(true)}
+          />
+
+          <div className="grid grid-cols-1 gap-4 p-4 xl:grid-cols-[minmax(0,1.3fr)_380px] 2xl:grid-cols-[minmax(0,1.45fr)_minmax(380px,0.9fr)]">
             <RankedOpportunities
               opportunities={prioritizedOpportunities}
               selectedCompanyId={selectedCompanyId}
@@ -376,7 +448,7 @@ export default function AppShell() {
               }}
             />
 
-            <div className="space-y-4">
+            <div className="space-y-4 xl:sticky xl:top-4 xl:self-start">
               {selectedDetail ? <NextActionPanel action={selectedDetail.nextAction} /> : null}
               {selectedDetail && selectedOpportunity ? (
                 <ExecutionPanel

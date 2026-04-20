@@ -27,7 +27,7 @@ function scoreLabel(signal: Signal) {
 
 export default function SignalFeedItem({ signal }: SignalFeedItemProps) {
   return (
-    <div className={`border-b border-console-rule2 px-4 py-3 last:border-b-0 ${SURFACE_CLASS[signal.scoreVariant]}`}>
+    <article className={`border-b border-console-rule2 px-4 py-3 last:border-b-0 ${SURFACE_CLASS[signal.scoreVariant]}`}>
       <div className="grid grid-cols-[68px_minmax(0,1fr)] gap-4">
         <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-console-dim">
           <div>{signal.ageLabel || signal.date}</div>
@@ -51,8 +51,8 @@ export default function SignalFeedItem({ signal }: SignalFeedItemProps) {
           <div className="mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-console-bright">
             {signal.headline}
           </div>
-          <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_220px]">
-            <div className="font-mono text-[10px] leading-5 text-console-secondary">
+          <div className="mt-2 grid gap-2 2xl:grid-cols-[minmax(0,1fr)_190px]">
+            <div className="console-body text-[10px] text-console-secondary">
               {signal.detail}
             </div>
             <div className="border-l border-console-rule2 pl-3 font-mono text-[10px] uppercase tracking-[0.12em] text-console-dim">
@@ -62,6 +62,6 @@ export default function SignalFeedItem({ signal }: SignalFeedItemProps) {
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

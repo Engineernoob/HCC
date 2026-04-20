@@ -1,8 +1,10 @@
 "use client";
 
+import { RefObject } from "react";
 import { QuickFilterKey } from "@/types";
 
 interface TopBarProps {
+  searchInputRef?: RefObject<HTMLInputElement>;
   search: string;
   notifications: number;
   activeFilters: QuickFilterKey[];
@@ -23,6 +25,7 @@ const FILTERS: Array<{ key: QuickFilterKey; label: string }> = [
 ];
 
 export default function TopBar({
+  searchInputRef,
   search,
   notifications,
   activeFilters,
@@ -59,6 +62,7 @@ export default function TopBar({
                 Search
               </span>
               <input
+                ref={searchInputRef}
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
                 placeholder="company, role, stack, signal"

@@ -24,13 +24,14 @@ export default function RankedOpportunities({
     <section className="border border-console-rule2 bg-ink-1">
       <div className="flex items-end justify-between border-b border-console-rule2 px-5 py-4">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-console-dim">
-            Ranked opportunities
+          <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-console-dim">
+            <span>Ranked opportunities</span>
+            <span className="text-console-secondary">{opportunities.length} targets</span>
           </div>
           <h2 className="mt-1 font-serif text-[28px] italic text-console-bright">{title}</h2>
         </div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-console-secondary">
-          {subtitle}
+        <div className="max-w-[44ch] text-right font-mono text-[10px] uppercase leading-5 tracking-[0.14em] text-console-secondary">
+          {subtitle} · sorted by actionability
         </div>
       </div>
 

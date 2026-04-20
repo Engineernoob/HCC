@@ -18,28 +18,28 @@ export default function CompanyIntelPanel({
   onToggleWatchlist,
 }: CompanyIntelPanelProps) {
   return (
-    <section className="border border-console-rule2 bg-ink-1">
-      <div className="border-b border-console-rule2 px-4 py-3">
-        <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-console-dim">
+    <section className="console-panel">
+      <div className="console-panel-header">
+        <div className="console-label">
           Company intelligence
         </div>
         <div className="mt-1 flex items-start justify-between gap-4">
           <div>
             <div className="font-serif text-[24px] italic text-console-bright">{opportunity.companyName}</div>
             <div className="mt-2 flex flex-wrap gap-2">
-              <span className="border border-console-gold px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-console-gold">
+              <span className="console-tag border-console-gold text-console-gold">
                 Stage · {opportunity.stageLabel}
               </span>
-              <span className="border border-console-rule3 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-console-primary">
+              <span className="console-tag">
                 Confidence · {opportunity.confidence}
               </span>
               {detail.execution ? (
-                <span className="border border-console-green px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-console-green">
+                <span className="console-tag border-console-green text-console-green">
                   Execution · {detail.execution.statusLabel}
                 </span>
               ) : null}
               {watchlisted ? (
-                <span className="border border-console-blue px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-console-blue">
+                <span className="console-tag border-console-blue text-console-blue">
                   On watchlist
                 </span>
               ) : null}
@@ -48,7 +48,7 @@ export default function CompanyIntelPanel({
           <button
             type="button"
             onClick={onToggleWatchlist}
-            className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] transition ${
+            className={`console-action ${
               watchlisted
                 ? "border-console-blue text-console-blue hover:bg-[rgba(80,112,176,0.08)]"
                 : "border-console-gold text-console-gold hover:bg-[rgba(200,169,110,0.08)]"
@@ -60,19 +60,19 @@ export default function CompanyIntelPanel({
       </div>
 
       <div className="space-y-4 px-4 py-4">
-        <p className="font-mono text-[11px] leading-6 text-console-primary">
+        <p className="console-body">
           {detail.aiSummary}
         </p>
 
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-console-dim">
+          <div className="console-label">
             Tech stack clues
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {detail.techStackClues.map((clue) => (
               <span
                 key={clue}
-                className="border border-console-rule3 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-console-primary"
+                className="console-tag"
               >
                 {clue}
               </span>
@@ -81,10 +81,10 @@ export default function CompanyIntelPanel({
         </div>
 
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-console-dim">
+          <div className="console-label">
             Outreach recommendation
           </div>
-          <p className="mt-2 font-mono text-[11px] leading-6 text-console-secondary">
+          <p className="console-body mt-2 text-console-secondary">
             {detail.outreachRecommendation}
           </p>
         </div>
@@ -93,14 +93,14 @@ export default function CompanyIntelPanel({
           <button
             type="button"
             onClick={onOpenDetail}
-            className="border border-console-gold px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-console-bright transition hover:bg-[rgba(200,169,110,0.08)]"
+            className="console-action border-console-gold text-console-bright"
           >
             Open detail sheet
           </button>
           <button
             type="button"
             onClick={onToggleWatchlist}
-            className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] transition ${
+            className={`console-action ${
               watchlisted
                 ? "border-console-blue text-console-blue hover:bg-[rgba(80,112,176,0.08)]"
                 : "border-console-rule3 text-console-primary hover:bg-ink-2"
